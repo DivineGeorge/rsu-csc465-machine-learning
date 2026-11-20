@@ -19,11 +19,35 @@ scores = stats.norm(55, 12)
 print(f"P(score >= 70) = {1 - scores.cdf(70):.3f}")
 print(f"score at the 90th percentile = {scores.ppf(0.90):.1f}")
 
-# (c) a t-test on two groups of 40 students (simulated, seed fixed)
+# (c) a t-test on two groups of 200 students
 rng = np.random.default_rng(465)
-old = rng.normal(55, 12, 40)
-new = rng.normal(61, 12, 40)
+
+old = rng.normal(55, 12, 200)
+new = rng.normal(61, 12, 200)
+
 t, p = stats.ttest_ind(new, old)
+
 print(f"means: old {old.mean():.1f}, new {new.mean():.1f}")
 print(f"t = {t:.2f}, p-value = {p:.4f}",
       "-> reject H0 at 5%" if p < 0.05 else "-> do not reject H0")
+
+rejections = 0
+total_runs = 1000
+
+for seed in range(total_runs):
+    rng = np.random.default_rng(seed)
+
+    old = rng.normal(55, 12, 200)
+    new = rng.normal(61, 12, 200)
+
+    t, p = stats.ttest_ind(new, old)
+
+    if p < 0.05:
+        rejections += 1
+
+print("Total runs:", total_runs)
+print("Times H0 was rejected:", rejections)
+print("Rejection rate:", rejections / total_runs)
+
+# Yes the t-test now rejects the H0
+# When value at 0.05 or 0.4, Times H0 was rejected: 999 Rejection rate: 0.999 but when at 1.5, Times H0 was rejected: 1000 Rejection rate: 1.0
